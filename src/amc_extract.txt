@@ -1,0 +1,26 @@
+#TITLE: 	Aflatoxin M1 in milk
+#DESCRIPTION:	Analytical calibration
+#VARIABLES:	AFM1; concentration of aflatoxin M1 in calibration solution: R1-R4; responses
+#UNITS:		nanogrammes per millilitre
+#REFERENCE_VALUES: 	None
+#APPLICATION_SECTOR:	Food safety
+#ANALYTE:	Aflatoxin M1
+#MATRIX_TYPE:	Milk
+#RATIONALE:	Analytical calibration
+#DATA_TYPE:	Bivariate
+#DATA_STRUCTURE:	Repeat responses
+#CONDITIONS:	Repeatability
+#ORIGIN:	Experimental
+#DATE_OF_ORIGIN:	2005
+#AUTHOR:	J A D Green
+#AUTHOR_ADDRESS:	Hampshire Scientific Services 
+#LITERATURE_REFERENCES:	None
+
+
+AFM1	R1	R2	R3	R4
+1.86	2331	2206	2442	2473
+4.66	5593	5635	5743	5793
+9.31	11138	11053	11129	11593
+18.63	22426	22405	22716	22740
+27.94	33848	33809	34788	34991
+37.26	46702	46681	46211	46223
