@@ -15,7 +15,7 @@ class XValTokenizer:
         number_token (str): Token to replace numerical values in the text with
         """
         self.number_token = number_token
-        self.number_pattern = re.compile(r'\d+')
+        self.number_pattern = re.compile(r'\d*\.?\d+')
         
         # to avoid training anew everytime:
         if pretrained_path:
@@ -143,7 +143,7 @@ class XValEmbedding(nn.Module):
         return hemb
 
 def main():
-    text = "The price is 100 dollars and the discount is 20 percent. I'll buy 6 pieces."
+    text = "The price is 100 dollars and the discount is 20 percent. I'll buy 6 pieces. What about 2.3?"
     tokenizer_path = 'tokenizer.json'
     
     tokenizer = XValTokenizer(pretrained_path=None, vocab_files=['amc_extract.txt'], save_file=tokenizer_path)
