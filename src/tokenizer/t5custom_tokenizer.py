@@ -28,9 +28,14 @@ class T5Custom_Tokenizer(NumberEncodingTokenizer):
         self.num_token_ids = [self.convert_tokens_to_ids(num_token) for num_token in num_tokens]
         self.embedding_dim = embedding_dim
 
-
     def get_num_token_ids(self):
         return self.num_token_ids
+
+    def get_num_tokens(self):
+        return self.num_tokens
+
+    def decode_number_token(self, token: str) -> float:
+        return float(token)
 
     def tokenize(self, text: str, add_special_tokens=False, **kwargs) -> List[str]:
         out = super().tokenize(
