@@ -42,7 +42,7 @@ from src.tokenizer.xval_tokenizer import XvalTokenizer
 from src.tokenizer.t5custom_tokenizer import T5Custom_Tokenizer
 from src.transformer_backbone.t5.t5_rt import T5RegressionModelRT
 from src.transformer_backbone.t5.t5_xval import T5RegressionModelXval
-from src.transformer_backbone.t5.t5_default import T5VanillaForNumberTokenLoss
+from src.transformer_backbone.t5.t5_vanilla_for_number_token_loss import T5VanillaForNumberTokenLoss
 from src.evaluation import CustomMetrics
 from src.number_token_loss import NumberTokenLoss
 
@@ -182,7 +182,7 @@ def main():
     os.environ["COMET_MODE"] = "DISABLED"
 
     # Switch off WandB
-    os.environ["WANDB_DISABLED"] = "true"
+    os.environ["WANDB_DISABLED"] = "false"
 
     parser = HfArgumentParser(
         (ModelArguments, CustomTrainingArguments)
@@ -349,12 +349,19 @@ def main():
     '''
 
     # Get datasets
-    train_data_path = '../data/mathematics_dataset-v1.0/mathematics_dataset-v1.0/train-easy/algebra__linear_1d_small.txt'
-    eval_data_path = '../data/mathematics_dataset-v1.0/mathematics_dataset-v1.0/train-easy/algebra__linear_1d_small.txt'
-    test_data_path = '../data/mathematics_dataset-v1.0/mathematics_dataset-v1.0/train-easy/algebra__linear_1d_small.txt'
-    train_dataset = load_txt_dataset(train_data_path)
-    eval_dataset = load_txt_dataset(eval_data_path)
-    test_dataset = load_txt_dataset(test_data_path)
+    train_data_path = 'data/grade-school-math/grade_school_math/data/train_t_clean.jsonl'
+    eval_data_path = 'data/grade-school-math/grade_school_math/data/val_t_clean.jsonl'
+    test_data_path = 'data/grade-school-math/grade_school_math/data/test_clean.jsonl'
+    train_dataset = load_json_dataset(train_data_path)
+    eval_dataset = load_json_dataset(eval_data_path)
+    test_dataset = load_json_dataset(test_data_path)
+
+    # train_data_path = '../data/mathematics_dataset-v1.0/mathematics_dataset-v1.0/train-easy/algebra__linear_1d_small.txt'
+    # eval_data_path = '../data/mathematics_dataset-v1.0/mathematics_dataset-v1.0/train-easy/algebra__linear_1d_small.txt'
+    # test_data_path = '../data/mathematics_dataset-v1.0/mathematics_dataset-v1.0/train-easy/algebra__linear_1d_small.txt'
+    # train_dataset = load_txt_dataset(train_data_path)
+    # eval_dataset = load_txt_dataset(eval_data_path)
+    # test_dataset = load_txt_dataset(test_data_path)
 
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     logger.info(f"Number of parameters {num_params} of type {type(model)}")
