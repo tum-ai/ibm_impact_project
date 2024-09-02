@@ -3,6 +3,8 @@ import re
 from typing import List
 
 from src.tokenizer.abstract_tokenizer import NumberEncodingTokenizer, NUMBER_REGEX
+from src.encoding_decoding.numerical_encodings import encoding_to_number
+from src.tokenizer.abstract_tokenizer import NumberEncodingTokenizer
 
 
 class RtTokenizer(NumberEncodingTokenizer):
@@ -33,6 +35,12 @@ class RtTokenizer(NumberEncodingTokenizer):
 
     def get_num_token_ids(self):
         return self.num_token_ids
+
+    def get_num_tokens(self):
+        return self.num_tokens
+
+    def decode_number_token(self, token):
+        return encoding_to_number(token)
 
     def tokenize(self, text: str, add_special_tokens=False, **kwargs) -> List[str]:
         nonum_text, number_tokens = extract(text)
