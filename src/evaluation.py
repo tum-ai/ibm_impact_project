@@ -161,6 +161,7 @@ class CustomMetrics:
         self.rouge_metric = evaluate.load("rouge")
         self.bleu_metric = evaluate.load("sacrebleu")
         nltk.download('punkt_tab')
+        nltk.download("punkt")
 
         if self.number_encoding == "none":
             # ▁ is necessary as T5 Tokenizes white spaces like this and it has tokens for 1 and ▁1
@@ -238,7 +239,7 @@ class CustomMetrics:
         label_number = "".join(re.findall(NUMBER_REGEX, label)[-1])
 
         # Convert the strings to floats
-        prediction_number = float(prediction_number)
+        prediction_number = min(float(prediction_number), 1e+30)  # cut value to not run in overflow
         label_number = float(label_number)
 
         # Calculate the mean squared error

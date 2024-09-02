@@ -9,6 +9,7 @@ python3 src/run_language_modeling.py \
   --config_name t5-small \
   --learning_rate 1e-4 \
   --lr_scheduler_type reduce_lr_on_plateau \
+  --lr_scheduler_kwargs "{\"factor\": 0.5, \"patience\": 5}" \
   --num_train_epochs 10 \
   --save_total_limit 2 \
   --save_steps 1000 \
