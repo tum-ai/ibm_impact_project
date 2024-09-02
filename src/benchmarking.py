@@ -5,11 +5,8 @@ import os
 from together import Together
 import random
 
-#model = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
-#client = Together(api_key='TODO')
-
-model = 'gpt-4o'
-client = OpenAI(api_key='TODO')
+model = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
+client = Together(api_key='d12abbf5758d9e73d7417d79b5b8c2cdc4d33449d378848b93411c3ea41b9f88')
 
 # load dataset, use test split for benchmarking
 ds = load_dataset("openai/gsm8k", "main")
@@ -54,18 +51,14 @@ def generate_solution(problem: str, in_context_examples: list, client) -> str:
 problems = []
 ground_truth_solutions = []
 
-i = 0
 for entry in dataset:
-    if i > 3:
-        break
+
     problem = entry['question']  
     answer = entry['answer']  
     
     problems.append(problem)
     ground_truth_solutions.append(answer)
     
-    i += 1
-
 solutions = [generate_solution(problem, in_context_examples, client) for problem in problems]
 
 predictions = [
@@ -73,6 +66,6 @@ predictions = [
     for problem, solution, ground_truth in zip(problems, solutions, ground_truth_solutions)
 ]
 
-output_file = f'predictions_{model}.json'
+output_file = f'predictions.json'
 with open(output_file, 'w') as f:
     json.dump(predictions, f, indent=4)
