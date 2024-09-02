@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 from transformers import T5Tokenizer
 
+NUMBER_REGEX = r"(\-)?(\d+)(\.)?(\d+)?"
+
 
 class NumberEncodingTokenizer(T5Tokenizer, ABC):
     """Abstract base class for number encoding tokenizers based on T5."""
