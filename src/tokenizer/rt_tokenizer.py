@@ -38,7 +38,7 @@ class RtTokenizer(NumberEncodingTokenizer):
     def get_num_tokens(self):
         return self.num_tokens
 
-    def decode_number_token(self, token: str) -> float:
+    def decode_number_token(self, token):
         return encoding_to_number(token)
 
     def tokenize(self, text: str, add_special_tokens=False, **kwargs) -> List[str]:

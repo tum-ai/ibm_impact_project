@@ -8,6 +8,7 @@ The file is an adaptation of https://github.com/huggingface/transformers/blob/v3
 import sys
 
 from src.trainer import CustomSeq2SeqTrainer
+from src.transformer_backbone.t5.t5_vanilla_for_number_token_loss import T5VanillaForNumberTokenLoss
 
 sys.path.append("..")
 

@@ -32,7 +32,7 @@ class XvalTokenizer(NumberEncodingTokenizer):
     def get_num_tokens(self):
         return [self.num_token]
 
-    def decode_number_token(self, token: str, number: float = None) -> float:
+    def decode_number_token(self, token, number: float = None):
         return number
 
     def _encode_plus(

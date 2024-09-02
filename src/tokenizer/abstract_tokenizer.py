@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List
 
 from transformers import T5Tokenizer
-
+from typing import List
 
 class NumberEncodingTokenizer(T5Tokenizer, ABC):
     """Abstract base class for number encoding tokenizers based on T5."""
@@ -14,11 +13,8 @@ class NumberEncodingTokenizer(T5Tokenizer, ABC):
 
     @abstractmethod
     def get_num_tokens(self) -> List[str]:
-        """Should return the list of numerical tokens."""
         pass
 
     @abstractmethod
     def decode_number_token(self, token: str) -> float:
-        """Should decode numerical tokens."""
         pass
-
