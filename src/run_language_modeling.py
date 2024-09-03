@@ -291,7 +291,7 @@ def main():
     else:
         model_init_kwargs = {}
 
-    if model_args.number_encoding == "xval" and model_args.number_token_loss is not None:
+    if model_args.number_encoding == "xval" and model_args.number_token_loss:
         raise Exception("Xval does not accept NumberTokenLoss")
 
     if model_args.number_token_loss is not None and model_args.number_token_loss:
