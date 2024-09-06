@@ -51,25 +51,23 @@ class CustomMetrics:
     def calculate_result_mae(self, prediction: List[str], label: List[str]) -> List[float]:
         return [self.calculate_result_number_loss_per_sample(prediction[i], label[i], order=1) for i in range(len(prediction))]
 
-    def calculate_result_number_loss_per_sample(self, prediction: str, label: str, order: int):
-        # Extract the last number of both strings and compare them
-        prediction_number = re.findall(NUMBER_REGEX, prediction)
-        if len(prediction_number) == 0:
+    def calculate_number_loss_per_sample(self, generated: str, reference: str, order: int):
+        """
+        Calculate the numerical difference between the numbers found in generated and reference texts.
+        """
+        gen_parts = generated.split("####")
+        ref_parts = reference.split("####")
+
+        if len(gen_parts)!=2 or len(ref_parts)!=2:
             return np.nan
-        prediction_number = "".join(prediction_number[-1])
-        label_number = "".join(re.findall(NUMBER_REGEX, label)[-1])
-
-        # Convert the strings to floats
-        prediction_number = float(prediction_number)
-        label_number = float(label_number)
-
-        # Calculate the mean squared error
+        
         try:
-            mse = np.abs(prediction_number - label_number) ** order
-        except Exception as e:
-            logging.error(f"Error calculating MSE: {e} with numbers {prediction_number} and {label_number}")
-            mse = np.nan
-        return mse
+            gen_number = float(gen_parts[1].replace(",", ""))
+            ref_number = float(ref_parts[1].replace(",", ""))
+        except ValueError:
+            return np.nan
+                
+        return np.abs(gen_number - ref_number) ** order
 
     def perplexity(self, logits, labels):
         # Mask to ignore panumeric_tokening tokens (-100)
