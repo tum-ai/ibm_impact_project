@@ -51,7 +51,7 @@ class CustomMetrics:
     def calculate_result_mae(self, prediction: List[str], label: List[str]) -> List[float]:
         return [self.calculate_result_number_loss_per_sample(prediction[i], label[i], order=1) for i in range(len(prediction))]
 
-    def calculate_number_loss_per_sample(self, generated: str, reference: str, order: int):
+    def calculate_result_number_loss_per_sample(self, generated: str, reference: str, order: int):
         """
         Calculate the numerical difference between the numbers found in generated and reference texts.
         """
