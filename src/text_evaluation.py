@@ -37,19 +37,12 @@ class TextEvaluation:
         rouge_result = self.rouge_metric.compute(predictions=generated, references=references, use_stemmer=True)
         return rouge_result
 
-    def compute_mse(self, generated: List[str], references: List[str]) -> float:
-        """
-        Compute the Mean Squared Error (MSE) between the numbers extracted from the generated and reference texts.
-        """
-        return np.nanmean([self.calculate_number_loss_per_sample(generated[i], references[i], 2) for i in range(len(generated))])
+    def parse_number_result(self, prediction: List[str], label: List[str]) -> List[Tuple[float, float]]:
+        number_results = [self.parse_number_result_per_sample(prediction[i], label[i]) for i in range(len(prediction))]
 
-    def compute_mae(self, generated: List[str], references: List[str]) -> float:
-        """
-        Compute the Mean Absolute Error (MAE) between the numbers extracted from the generated and reference texts.
-        """
-        return np.nanmean([self.calculate_number_loss_per_sample(generated[i], references[i], 1) for i in range(len(generated))])
+        return number_results
 
-    def calculate_number_loss_per_sample(self, generated: str, reference: str, order: int):
+    def parse_number_result_per_sample(self, generated: str, reference: str):
         """
         Calculate the numerical difference between the numbers found in generated and reference texts.
         """
@@ -57,18 +50,30 @@ class TextEvaluation:
         ref_parts = reference.split("####")
 
         if len(gen_parts)!=2 or len(ref_parts)!=2:
-            return np.nan
+            return np.nan, np.nan
         
         try:
             gen_number = float(gen_parts[1].replace(",", ""))
             ref_number = float(ref_parts[1].replace(",", ""))
         except ValueError:
-            return np.nan
+            return np.nan, np.nan
         
         if max(gen_number, ref_number)>1000000:
             print(gen_number, ref_number)
 
-        return np.abs(gen_number - ref_number) ** order
+        return gen_number, ref_number
+
+    def calculate_metrics(self, number_results, total_count):
+        mae = np.mean([np.abs(result[0] - result[1]) for result in number_results if not np.isnan(result[0])])
+        mse = np.mean([np.abs(result[0] - result[1]) ** 2 for result in number_results if not np.isnan(result[0])])
+        r2 = 1 - np.nansum((number_results[:, 0] - number_results[:, 1]) ** 2) / np.nansum(
+            (number_results[:, 1] - np.nanmean(number_results[:, 1])) ** 2)
+        number_accuracy = np.mean(
+            [np.isclose(result[0], result[1]) if not np.isnan(result[0]) else False for result in number_results])
+        count_not_produced_valid_results = np.sum(np.isnan([result[0] for result in number_results]))
+        average_count_not_produced_valid_results = count_not_produced_valid_results / total_count
+
+        return mae, mse, r2, number_accuracy, count_not_produced_valid_results, average_count_not_produced_valid_results
 
     def compute_token_accuracy(self, generated: List[str], references: List[str]) -> Tuple[float, float]:
         """
@@ -100,15 +105,17 @@ class TextEvaluation:
 
         bleu = self.compute_bleu(generated_solutions, ground_truth_solutions)
         rouge = self.compute_rouge(generated_solutions, ground_truth_solutions)
-        mse = self.compute_mse(generated_solutions, ground_truth_solutions)
-        mae = self.compute_mae(generated_solutions, ground_truth_solutions)
         token_accuracy, token_accuracy_whole = self.compute_token_accuracy(generated_solutions, ground_truth_solutions)
+
+        number_results = self.parse_number_result(generated_solutions, ground_truth_solutions)
+        total_count = len(generated_solutions)
 
         batch_result = {
             'token_accuracy': token_accuracy,
             'token_accuracy_whole': token_accuracy_whole,
-            'MSE': mse,
-            'MAE': mae,
+            'number_results': number_results,
+            'total_count': total_count,
+            "mae": np.mean([np.abs(result[0] - result[1]) for result in number_results if not np.isnan(result[0])]),
             'BLEU': bleu['score'],
             'ROUGE1': rouge['rouge1'],
             'ROUGE2': rouge['rouge2'],
@@ -118,11 +125,26 @@ class TextEvaluation:
         self.batch_stats.append(batch_result)
 
         if compute_result:
+            total_count = sum([stat['total_count'] for stat in self.batch_stats])
+            number_results = np.concatenate([stat['number_results'] for stat in self.batch_stats])
+            (
+                mae,
+                mse,
+                r2,
+                number_accuracy,
+                count_not_produced_valid_results,
+                average_count_not_produced_valid_results
+            ) = self.calculate_metrics(number_results, total_count)
+
             aggregated_result = {
                 'token_accuracy': np.mean([stat['token_accuracy'] for stat in self.batch_stats]),
                 'token_accuracy_whole': np.mean([stat['token_accuracy_whole'] for stat in self.batch_stats]),
-                'MSE': np.nanmean([stat['MSE'] for stat in self.batch_stats]),
-                'MAE': np.nanmean([stat['MAE'] for stat in self.batch_stats]),
+                'MSE': mse,
+                'MAE': mae,
+                'R2': r2,
+                'number_accuracy': number_accuracy,
+                "count_not_produced_valid_results": count_not_produced_valid_results,
+                "average_count_not_produced_valid_results": average_count_not_produced_valid_results,
                 'BLEU': np.mean([stat['BLEU'] for stat in self.batch_stats]),
                 'ROUGE1': np.mean([stat['ROUGE1'] for stat in self.batch_stats]),
                 'ROUGE2': np.mean([stat['ROUGE2'] for stat in self.batch_stats]),
@@ -166,7 +188,7 @@ def evaluate_json_file(file_path: str, batch_size: int = 32, output_dir: str = '
             print(f"Batch {batch_num + 1} result: {result}")
 
 if __name__ == "__main__":
-    json_file_path = 'predictions.json'
+    json_file_path = '../predictions.json'
 
     output_directory = 'output'
 
